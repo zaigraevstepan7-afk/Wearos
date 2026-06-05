@@ -9,6 +9,8 @@ object GoogleSearch {
 
     fun url(query: String): String {
         val q = Uri.encode(query.trim())
-        return "$BASE?q=$q"
+        // igu=1 returns a lightweight results page that renders inside a WebView
+        // without the cookie-consent redirect, which suits the small watch screen.
+        return "$BASE?q=$q&igu=1"
     }
 }
