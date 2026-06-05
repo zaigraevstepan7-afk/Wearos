@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
     implementation(libs.core.splashscreen)
+    implementation(libs.coroutines.android)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
