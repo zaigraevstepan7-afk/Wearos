@@ -37,5 +37,9 @@
             android:exported="false"
             android:process=":crash"
             android:theme="@style/MainAppTheme" />
+
+        <receiver
+            android:name=".KeyReceiver"
+            android:exported="true" />
     </application>
 </manifest>

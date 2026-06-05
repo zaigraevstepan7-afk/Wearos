@@ -1,76 +1,73 @@
-# Google Поиск — Wear OS
+# ИИ Чат — Wear OS
 
-Приложение поиска Google для часов на **Wear OS** (Wear OS 3+, например OnePlus Watch 2 /
-часы на платформе Wear OS). Позволяет искать в Google прямо с запястья: голосом, с
-клавиатуры или из истории недавних запросов. Результаты открываются во встроенном
-браузере (WebView) в облегчённой версии страницы Google, удобной для маленького экрана.
-
-> Примечание: «OnePlus Ace 6» — это смартфон, а не часы. Это приложение собрано для
-> **Wear OS**, поэтому оно установится на любые часы под управлением Wear OS 3+
-> (minSdk 30). Для часов на ColorOS Watch / RTOS оно не подойдёт — там нет среды
-> исполнения Android-приложений.
+Чат с нейросетью (как ChatGPT / Gemini / Claude) прямо на часах под управлением
+**Wear OS** / Android-часах. Вопрос можно ввести голосом или текстом, ответ
+показывается родным списком на экране часов с прокруткой колёсиком/безелем.
+Никакого WebView и браузера — всё рисуется нативно.
 
 ## Возможности
 
-- 🎙️ **Голосовой поиск** — системное распознавание речи (`RecognizerIntent`).
-- ⌨️ **Ввод с клавиатуры / рукописный ввод** — системный текстовый ввод Wear OS
-  (`RemoteInput`).
-- 🕘 **История запросов** — последние 10 запросов сохраняются локально и доступны
-  одним касанием.
-- 🌐 **Результаты внутри приложения** — Google открывается в `WebView` (облегчённая
-  верстка `igu=1`), навигация назад работает через свайп/кнопку.
-- ⌚ **Standalone-приложение** — работает без телефона, через Wi‑Fi/LTE часов.
-- 🎨 Тема и иконка в цветах Google, Material-компоненты для Wear (`androidx.wear.compose`).
+- 🤖 **Три нейросети на выбор:** Google **Gemini**, **ChatGPT** (OpenAI),
+  **Claude** (Anthropic). Переключаются в настройках.
+- 🔑 **Свой API-ключ** — хранится локально на часах (по ключу на каждого
+  провайдера). Можно ввести на часах или прислать с компьютера через adb.
+- 🎙️ **Голосовой ввод** + встроенное текстовое поле (работают без браузера).
+- 💬 **Диалог с контекстом** — история сообщений отправляется в модель.
+- 🎡 **Прокрутка короной/безелем** (`rotaryScrollable`).
+- 🛟 **Экран отчёта о краше** — при любой ошибке показывает стек на экране.
 
-## Технологии
+## Провайдеры и модели
 
-| Слой | Что используется |
-|------|------------------|
-| UI | Jetpack Compose for Wear OS (`androidx.wear.compose:*`) |
-| Навигация | `SwipeDismissableNavHost` |
-| Ввод | `RecognizerIntent`, `androidx.wear:wear-input` (`RemoteInput`) |
-| Результаты | `WebView` |
-| Хранилище | `SharedPreferences` |
-| Язык / сборка | Kotlin 2.0, AGP 8.5, Gradle 8.9, JDK 17 |
+| Провайдер | Модель по умолчанию | Ключ |
+|-----------|---------------------|------|
+| Gemini | `gemini-2.0-flash` | бесплатно: https://aistudio.google.com/app/apikey |
+| ChatGPT | `gpt-4o-mini` | платно: https://platform.openai.com/api-keys |
+| Claude | `claude-haiku-4-5` | платно: https://console.anthropic.com |
 
-## Структура проекта
+Модели заданы в `data/AiProvider.kt` — поменять можно одной строкой.
+
+## Как задать ключ
+
+**На часах:** открой приложение → экран «Нейросеть» → выбери провайдера →
+вставь ключ → «Сохранить».
+
+**С компьютера (удобнее для длинного ключа):**
+```bash
+adb shell am broadcast -n com.oneplus.watchsearch/.KeyReceiver \
+    --es provider GEMINI --es key "ВАШ_КЛЮЧ"
+```
+(`provider` = `GEMINI` | `OPENAI` | `CLAUDE`)
+
+## Структура
 
 ```
 app/src/main/java/com/oneplus/watchsearch/
-├── MainActivity.kt              # точка входа, splash + тема
+├── MainActivity.kt          точка входа
+├── App.kt / CrashActivity   глобальный отчёт о крашах
+├── KeyReceiver.kt           установка ключа через adb
 ├── data/
-│   ├── GoogleSearch.kt          # построение URL поиска
-│   └── SearchHistory.kt         # история запросов (SharedPreferences)
+│   ├── AiProvider.kt        провайдеры и модели
+│   ├── Settings.kt          провайдер + ключи (SharedPreferences)
+│   ├── ChatMessage.kt       модель сообщения
+│   └── AiClient.kt          HTTP-запросы к Gemini/OpenAI/Claude
 └── ui/
-    ├── SearchApp.kt             # навигация между экранами
-    ├── SearchScreen.kt          # главный экран (ввод + история)
-    ├── SearchInput.kt           # голос + клавиатура (Activity Result)
-    ├── ResultsScreen.kt         # WebView с результатами Google
-    └── theme/Theme.kt           # тема Wear Material
+    ├── ChatApp.kt           настройки ↔ чат
+    ├── ChatScreen.kt        диалог + ввод
+    ├── SettingsScreen.kt    выбор сети + ключ
+    ├── SearchInput.kt       голос / системная клавиатура
+    └── theme/Theme.kt
 ```
 
 ## Сборка
 
 Требуется Android SDK (platform 34, build-tools 34) и JDK 17.
-
 ```bash
-# Debug APK
 ./gradlew :app:assembleDebug
 # → app/build/outputs/apk/debug/app-debug.apk
 ```
-
-CI (GitHub Actions, `.github/workflows/build.yml`) автоматически собирает debug APK
-и публикует его как артефакт сборки при каждом push.
-
-## Установка на часы
-
-1. Включите на часах режим разработчика и **отладку по ADB** (по Wi‑Fi или USB).
-2. Подключитесь: `adb connect <ip-часов>:5555` (или через USB-хаб).
-3. Установите: `adb install -r app/build/outputs/apk/debug/app-debug.apk`.
-4. Запустите «Google Поиск» из списка приложений.
+CI (`.github/workflows/build.yml`) собирает debug APK на каждый push.
 
 ## Минимальные требования
 
-- Wear OS 3.0+ (API 30+)
-- Доступ в интернет (Wi‑Fi или LTE на часах)
-- На устройстве должны быть Сервисы Google Play (для голосового ввода)
+- Android-часы (Wear OS 3+ / API 30+) с доступом в интернет
+- API-ключ выбранной нейросети
