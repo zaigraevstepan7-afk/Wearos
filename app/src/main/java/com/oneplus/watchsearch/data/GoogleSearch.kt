@@ -9,7 +9,6 @@ object GoogleSearch {
 
     fun url(query: String): String {
         val q = Uri.encode(query.trim())
-        // igu=1 hints a lightweight results page that renders well on small screens.
-        return "$BASE?q=$q&igu=1"
+        return "$BASE?q=$q"
     }
 }

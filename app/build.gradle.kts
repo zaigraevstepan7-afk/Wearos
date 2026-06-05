@@ -60,7 +60,6 @@ dependencies {
 
     implementation(libs.wear.compose.material)
     implementation(libs.wear.compose.foundation)
-    implementation(libs.wear.compose.navigation)
     implementation(libs.wear.remote.interactions)
     implementation(libs.wear.input)
 
