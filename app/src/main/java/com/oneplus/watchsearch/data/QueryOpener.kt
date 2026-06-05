@@ -1,6 +1,5 @@
 package com.oneplus.watchsearch.data
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -35,7 +34,8 @@ class QueryOpener(private val context: Context) {
         return try {
             context.startActivity(intent)
             true
-        } catch (e: ActivityNotFoundException) {
+        } catch (e: Throwable) {
+            // No browser, or the launch was rejected for any reason.
             false
         }
     }
