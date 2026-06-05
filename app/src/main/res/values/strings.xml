@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Google Поиск</string>
+    <string name="search_hint">Введите запрос</string>
+    <string name="voice_search">Голосовой поиск</string>
+    <string name="search">Искать</string>
+    <string name="open_on_phone">Открыть на телефоне</string>
+    <string name="clear">Очистить</string>
+    <string name="recent_searches">Недавние запросы</string>
+    <string name="no_connection">Нет подключения к интернету</string>
+    <string name="loading">Загрузка…</string>
+    <string name="empty_query">Скажите или введите запрос</string>
+    <string name="back">Назад</string>
+</resources>
